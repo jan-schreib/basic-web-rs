@@ -1,0 +1,19 @@
+[package]
+name = "goutdb"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "goutdb"
+path = "src/main.rs"
+
+[dependencies]
+tokio = { version = "1", features = [ "full" ] }
+sqlx = { version = "0.6", features = [ "runtime-tokio-native-tls", "sqlite" ] }
+axum = "0.6.2"
+env_logger = "0.10.0"
+chrono = "0.4.23"
+uuid = { version = "1.2.2", features = ["v4"] }
+thiserror = "1.0.38"
+async-trait = "0.1.61"
+
