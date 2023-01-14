@@ -1,7 +1,8 @@
+use crate::db::sqlite::Sqlite;
 use crate::gtypes::config::GConfig;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
-    ConnectOptions, Connection, SqliteConnection,
+    SqlitePool,
 };
 use std::{str::FromStr, sync::Arc};
 use thiserror::Error;
@@ -10,26 +11,32 @@ use thiserror::Error;
 pub enum Error {
     #[error("Error in Sqlx")]
     SqlxError(#[from] sqlx::Error),
+    #[error("Migration error")]
+    MigrationError(#[from] sqlx::migrate::MigrateError),
 }
 
 pub struct Context {
-    pub database: Arc<Database<SqliteConnection>>,
+    pub database: Database<Arc<Sqlite>>,
     pub cache: Arc<Cache>,
 }
 
-pub struct Database<T: Connection> {
+pub struct Database<T> {
     pub connection: T,
 }
 
-impl Database<SqliteConnection> {
+impl Database<Arc<Sqlite>> {
     pub async fn new(url: &str) -> Result<Self, Error> {
-        let conn = SqliteConnectOptions::from_str(url)?
+        let conn_opts = SqliteConnectOptions::from_str(url)?
             .journal_mode(SqliteJournalMode::Wal)
-            .read_only(false)
-            .connect()
-            .await?;
+            .create_if_missing(true)
+            .read_only(false);
 
-        let database = Database { connection: conn };
+        let conn = SqlitePool::connect_with(conn_opts).await?;
+
+        let sqlite = Sqlite::new(conn);
+        let database = Database {
+            connection: Arc::new(sqlite),
+        };
 
         Ok(database)
     }
@@ -42,8 +49,20 @@ impl Context {
         let database = Database::new(&config.db_url).await?;
         let cache = Cache {};
         Ok(Context {
-            database: Arc::new(database),
+            database,
             cache: Arc::new(cache),
         })
+    }
+
+    pub async fn run_migrations(&self) -> Result<(), Error> {
+        sqlx::migrate!()
+            .run(&*self.database.connection.get_db())
+            .await?;
+
+        Ok(())
+    }
+
+    pub fn database(&self) -> Arc<Sqlite> {
+        self.database.connection.clone()
     }
 }
