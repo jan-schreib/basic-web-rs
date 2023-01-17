@@ -1,4 +1,4 @@
-use crate::db::sqlite::Sqlite;
+use crate::db::{interface::Db, sqlite::Sqlite};
 use crate::gtypes::config::GConfig;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
@@ -16,15 +16,16 @@ pub enum Error {
 }
 
 pub struct Context {
-    pub database: Database<Arc<Sqlite>>,
+    pub config: GConfig,
+    pub database: Database<Sqlite>,
     pub cache: Arc<Cache>,
 }
 
-pub struct Database<T> {
-    pub connection: T,
+pub struct Database<T: Db> {
+    pub connection: Arc<T>,
 }
 
-impl Database<Arc<Sqlite>> {
+impl Database<Sqlite> {
     pub async fn new(url: &str) -> Result<Self, Error> {
         let conn_opts = SqliteConnectOptions::from_str(url)?
             .journal_mode(SqliteJournalMode::Wal)
@@ -48,7 +49,9 @@ impl Context {
     pub async fn new(config: &GConfig) -> Result<Self, Error> {
         let database = Database::new(&config.db_url).await?;
         let cache = Cache {};
+        let config = config.clone();
         Ok(Context {
+            config,
             database,
             cache: Arc::new(cache),
         })

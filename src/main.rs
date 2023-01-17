@@ -1,43 +1,40 @@
-pub mod context;
-pub mod db;
-pub mod gtypes;
+use std::net::SocketAddr;
 
-use db::interface::Db;
+use axum::routing::get;
+use axum::Router;
+use libgout::context::Context;
+use libgout::gtypes::config::GConfig;
+
 use thiserror::Error;
+
+mod api;
+mod webapp;
+
+use webapp::WebApp;
 
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("DbError")]
-    DbError(#[from] db::error::DbError),
+    DbError(#[from] libgout::db::error::DbError),
     #[error("ContextError")]
-    ContextError(#[from] context::Error),
+    ContextError(#[from] libgout::context::Error),
+    #[error("WebAppError")]
+    WebAppError(#[from] webapp::AppError),
 }
-
-use context::Context;
-use gtypes::config::GConfig;
-
-use crate::gtypes::food::FoodInsert;
 
 #[tokio::main]
 pub async fn main() -> Result<(), Error> {
     let config = GConfig {
         db_url: "sqlite::memory:".to_string(),
         cache_url: String::new(),
+        port: SocketAddr::from(([127, 0, 0, 1], 3000)),
     };
 
     let context = Context::new(&config).await?;
-
     context.run_migrations().await?;
 
-    let db = context.database();
+    let app = WebApp::new(context);
+    app.run().await?;
 
-    let foods = db.get_foods().await?;
-
-    foods.iter().for_each(|f| println!("{}", f));
-    db.add_food(FoodInsert {
-        name: "Kiwi".to_string(),
-    })
-    .await?;
-    db.delete_food(4).await?;
     Ok(())
 }

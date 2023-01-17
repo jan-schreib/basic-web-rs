@@ -21,11 +21,11 @@ impl Sqlite {
 
 #[async_trait]
 impl Db for Sqlite {
-    async fn add_food(&self, food: FoodInsert) -> Result<(), DbError> {
+    async fn add_food(&self, food: &FoodInsert) -> Result<(), DbError> {
         let mut conn = self.get_db().acquire().await?;
 
         let res = sqlx::query("insert into foods(name) values (?)")
-            .bind(food.name)
+            .bind(food.name.clone())
             .execute(&mut conn)
             .await?;
 
