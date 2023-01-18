@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
-use crate::gtypes::food::{Food, FoodInsert};
+use crate::types::food::{Food, FoodInsert};
 
 use super::{error::DbError, interface::Db};
 use async_trait::async_trait;
 use sqlx::Pool;
 use sqlx::SqlitePool;
 
+#[derive(Clone, Debug)]
 pub struct Sqlite(Arc<SqlitePool>);
 
 impl Sqlite {

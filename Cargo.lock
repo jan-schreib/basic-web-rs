@@ -524,6 +524,7 @@ dependencies = [
  "derive_more",
  "env_logger",
  "hyper",
+ "log",
  "rand",
  "serde",
  "serde_json",

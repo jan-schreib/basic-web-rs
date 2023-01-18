@@ -1,3 +1,3 @@
 pub mod context;
 pub mod db;
-pub mod gtypes;
+pub mod types;

@@ -1,13 +1,7 @@
-use hyper::Error;
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
-use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, post},
-    Json, Router,
-};
-use libgout::context::Context;
+use axum::{routing::get, Router};
+use libgout::{context::Context, db::interface::Db};
 use thiserror::Error;
 
 use crate::api;
@@ -20,37 +14,39 @@ pub enum AppError {
 
 pub struct WebApp {
     pub context: Context,
-    pub router: Router,
     pub addr: SocketAddr,
 }
+
+#[derive(Clone)]
+struct AppState {}
 
 impl WebApp {
     pub fn new(context: Context) -> Self {
         let config = context.config.clone();
-        let router = WebApp::router().nest("/api", WebApp::api_router());
+
         Self {
             context: context,
-            router,
             addr: config.port,
         }
     }
 
     pub async fn run(&self) -> Result<(), AppError> {
+        let api_router = WebApp::api_router(self.context.database.connection.clone());
+        let router = Router::new().nest("/api", api_router);
+
         axum::Server::bind(&self.addr)
-            .serve(self.router.clone().into_make_service())
+            .serve(router.clone().into_make_service())
             .await?;
 
         Ok(())
     }
 
-    fn router() -> Router {
-        Router::new()
-    }
-
-    fn api_router() -> Router {
+    fn api_router<S, T: Db + Send + Sync + Clone + 'static>(db: Arc<T>) -> Router<S> {
         let router = Router::new()
             .route("/", get(api::bar))
-            .route("/food/:id", get(api::food));
+            .route("/foods/:id", get(api::food))
+            .route("/foods", get(api::list_foods))
+            .with_state(db);
 
         router
     }

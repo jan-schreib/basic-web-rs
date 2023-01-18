@@ -1,5 +1,5 @@
 use super::error::DbError;
-use crate::gtypes::food::{Food, FoodInsert};
+use crate::types::food::{Food, FoodInsert};
 use async_trait::async_trait;
 
 #[async_trait]

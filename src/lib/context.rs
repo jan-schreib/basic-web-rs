@@ -1,5 +1,5 @@
 use crate::db::{interface::Db, sqlite::Sqlite};
-use crate::gtypes::config::GConfig;
+use crate::types::config::Config;
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqliteJournalMode},
     SqlitePool,
@@ -15,12 +15,14 @@ pub enum Error {
     MigrationError(#[from] sqlx::migrate::MigrateError),
 }
 
+#[derive(Clone, Debug)]
 pub struct Context {
-    pub config: GConfig,
+    pub config: Config,
     pub database: Database<Sqlite>,
     pub cache: Arc<Cache>,
 }
 
+#[derive(Clone, Debug)]
 pub struct Database<T: Db> {
     pub connection: Arc<T>,
 }
@@ -43,10 +45,11 @@ impl Database<Sqlite> {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct Cache {}
 
 impl Context {
-    pub async fn new(config: &GConfig) -> Result<Self, Error> {
+    pub async fn new(config: &Config) -> Result<Self, Error> {
         let database = Database::new(&config.db_url).await?;
         let cache = Cache {};
         let config = config.clone();

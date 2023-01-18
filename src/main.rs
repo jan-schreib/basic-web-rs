@@ -1,9 +1,7 @@
 use std::net::SocketAddr;
 
-use axum::routing::get;
-use axum::Router;
 use libgout::context::Context;
-use libgout::gtypes::config::GConfig;
+use libgout::types::config::Config;
 
 use thiserror::Error;
 
@@ -24,7 +22,9 @@ pub enum Error {
 
 #[tokio::main]
 pub async fn main() -> Result<(), Error> {
-    let config = GConfig {
+    env_logger::init();
+
+    let config = Config {
         db_url: "sqlite::memory:".to_string(),
         cache_url: String::new(),
         port: SocketAddr::from(([127, 0, 0, 1], 3000)),

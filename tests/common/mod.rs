@@ -1,12 +1,12 @@
 use libgout::{
     context::Context,
-    gtypes::{config::GConfig, food::Food},
+    types::{config::Config, food::Food},
 };
 use rand::Rng;
 use uuid::Uuid;
 
 pub async fn create_test_context() -> Context {
-    let config = GConfig::default();
+    let config = Config::default();
 
     let context = Context::new(&config)
         .await
@@ -25,6 +25,10 @@ pub fn generate_random_food() -> Food {
     Food {
         id: rng.gen(),
         name: Uuid::new_v4().to_string(),
+        kcal: 1,
+        purine: 4,
+        uric_acid: None,
+        gout_factor: None,
     }
 }
 

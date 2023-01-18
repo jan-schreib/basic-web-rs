@@ -1,13 +1,13 @@
 use std::net::SocketAddr;
 
-#[derive(Clone)]
-pub struct GConfig {
+#[derive(Clone, Debug)]
+pub struct Config {
     pub db_url: String,
     pub cache_url: String,
     pub port: SocketAddr,
 }
 
-impl Default for GConfig {
+impl Default for Config {
     fn default() -> Self {
         Self {
             db_url: "sqlite::memory:".to_string(),
