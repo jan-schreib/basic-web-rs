@@ -13,3 +13,11 @@ impl From<Food> for FoodInsert {
         }
     }
 }
+
+pub struct A {
+    pub name: String,
+    pub kcal: i64,
+    pub puring: i64,
+    pub uric_acid: Option<f64>,
+    pub gout_factor: Option<i64>
+}

@@ -1,6 +1,6 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{routing::get, Router};
+use axum::{routing::{get, post}, Router};
 use libgout::{context::Context, db::interface::Db};
 use thiserror::Error;
 
@@ -16,9 +16,6 @@ pub struct WebApp {
     pub context: Context,
     pub addr: SocketAddr,
 }
-
-#[derive(Clone)]
-struct AppState {}
 
 impl WebApp {
     pub fn new(context: Context) -> Self {
@@ -43,9 +40,9 @@ impl WebApp {
 
     fn api_router<S, T: Db + Send + Sync + Clone + 'static>(db: Arc<T>) -> Router<S> {
         let router = Router::new()
-            .route("/", get(api::bar))
             .route("/foods/:id", get(api::food))
             .route("/foods", get(api::list_foods))
+            .route("/food", post(api::create_food))
             .with_state(db);
 
         router

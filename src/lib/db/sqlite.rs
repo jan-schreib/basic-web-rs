@@ -24,9 +24,12 @@ impl Sqlite {
 impl Db for Sqlite {
     async fn add_food(&self, food: &FoodInsert) -> Result<(), DbError> {
         let mut conn = self.get_db().acquire().await?;
-
-        let res = sqlx::query("insert into foods(name) values (?)")
+        let res = sqlx::query("insert into foods(name, kcal, purine, uric_acid, gout_factor) values (?, ?, ?, ?, ?)")
             .bind(food.name.clone())
+            .bind(food.kcal)
+            .bind(food.purine)
+            .bind(food.uric_acid.unwrap_or_default())
+            .bind(food.gout_factor.unwrap_or_default())
             .execute(&mut conn)
             .await?;
 
