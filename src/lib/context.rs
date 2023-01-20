@@ -53,6 +53,7 @@ impl Context {
         let database = Database::new(&config.db_url).await?;
         let cache = Cache {};
         let config = config.clone();
+
         Ok(Context {
             config,
             database,

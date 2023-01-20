@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 pub struct Config {
     pub db_url: String,
     pub cache_url: String,
-    pub port: SocketAddr,
+    pub addr: SocketAddr,
 }
 
 impl Default for Config {
@@ -12,7 +12,7 @@ impl Default for Config {
         Self {
             db_url: "sqlite::memory:".to_string(),
             cache_url: Default::default(),
-            port: SocketAddr::from(([127, 0, 0, 1], 3000)),
+            addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
         }
     }
 }

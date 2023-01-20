@@ -5,6 +5,7 @@ use crate::types::food::{Food, FoodInsert};
 use super::{error::DbError, interface::Db};
 use async_trait::async_trait;
 use sqlx::Pool;
+use sqlx::Row;
 use sqlx::SqlitePool;
 
 #[derive(Clone, Debug)]
@@ -22,20 +23,22 @@ impl Sqlite {
 
 #[async_trait]
 impl Db for Sqlite {
-    async fn add_food(&self, food: &FoodInsert) -> Result<(), DbError> {
+    async fn add_food(&self, food: &FoodInsert) -> Result<i64, DbError> {
         let mut conn = self.get_db().acquire().await?;
-        let res = sqlx::query("insert into foods(name, kcal, purine, uric_acid, gout_factor) values (?, ?, ?, ?, ?)")
-            .bind(food.name.clone())
-            .bind(food.kcal)
-            .bind(food.purine)
-            .bind(food.uric_acid.unwrap_or_default())
-            .bind(food.gout_factor.unwrap_or_default())
-            .execute(&mut conn)
-            .await?;
+        let res = sqlx::query(
+            "insert into foods(name, kcal, purine, uric_acid, gout_factor) values (?, ?, ?, ?, ?) returning id",
+        )
+        .bind(food.name.clone())
+        .bind(food.kcal)
+        .bind(food.purine)
+        .bind(food.uric_acid.unwrap_or_default())
+        .bind(food.gout_factor.unwrap_or_default())
+        .fetch_one(&mut conn)
+        .await?;
 
-        assert!(res.rows_affected() == 1);
+        let id = res.get("id");
 
-        Ok(())
+        Ok(id)
     }
 
     async fn get_foods(&self) -> Result<Vec<Food>, DbError> {
@@ -44,6 +47,7 @@ impl Db for Sqlite {
         let foods = sqlx::query_as::<_, Food>("select * from foods")
             .fetch_all(&mut conn)
             .await?;
+
         Ok(foods)
     }
 
@@ -52,10 +56,14 @@ impl Db for Sqlite {
 
         let food = sqlx::query_as::<_, Food>("select * from foods where id = ?")
             .bind(id)
-            .fetch_one(&mut conn)
+            .fetch_optional(&mut conn)
             .await?;
 
-        Ok(food)
+        if let Some(food) = food {
+            Ok(food)
+        } else {
+            Err(DbError::NotFound(id))
+        }
     }
     async fn update_food(&self, food: Food) -> Result<(), DbError> {
         let mut conn = self.get_db().acquire().await?;

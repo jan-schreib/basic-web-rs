@@ -8,4 +8,6 @@ pub enum DbError {
     MigrationError(#[from] sqlx::migrate::MigrateError),
     #[error("MutexError")]
     Mutex(#[from] tokio::sync::TryLockError),
+    #[error("No entry with id `{0}`")]
+    NotFound(i64),
 }

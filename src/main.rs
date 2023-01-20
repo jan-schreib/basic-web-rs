@@ -5,10 +5,7 @@ use libgout::types::config::Config;
 
 use thiserror::Error;
 
-mod api;
-mod webapp;
-
-use webapp::WebApp;
+use libgout::webapp::{self, WebApp};
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -27,7 +24,7 @@ pub async fn main() -> Result<(), Error> {
     let config = Config {
         db_url: "sqlite::memory:".to_string(),
         cache_url: String::new(),
-        port: SocketAddr::from(([127, 0, 0, 1], 3000)),
+        addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
     };
 
     let context = Context::new(&config).await?;
