@@ -6,7 +6,7 @@ use axum::{
 };
 use thiserror::Error;
 
-use crate::{api, context::Context, db::interface::Db};
+use crate::{api::food, context::Context, db::interface::Db};
 
 #[derive(Error, Debug)]
 pub enum AppError {
@@ -44,9 +44,9 @@ impl WebApp {
 
     fn api_router<S, T: Db + Send + Sync + Clone + 'static>(db: Arc<T>) -> Router<S> {
         Router::new()
-            .route("/foods/:id", get(api::food))
-            .route("/foods", get(api::list_foods))
-            .route("/food", post(api::create_food))
+            .route("/foods/:id", get(food::food))
+            .route("/foods", get(food::list_foods))
+            .route("/food", post(food::create_food))
             .with_state(db)
     }
 }

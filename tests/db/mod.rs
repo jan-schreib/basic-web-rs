@@ -16,7 +16,7 @@ mod tests {
         let id = db.add_food(&food.clone().into()).await?;
 
         let db_food = db.get_food(id).await?;
-        
+
         assert_eq!(db_food.name, food.name);
         assert_eq!(db_food.kcal, food.kcal);
         assert_eq!(db_food.purine, food.purine);
@@ -40,7 +40,7 @@ mod tests {
         assert_eq!(10, foods.len());
 
         let f1 = foods.first().unwrap();
-        
+
         assert_eq!(f1.kcal, 1);
         assert_eq!(f1.purine, 4);
         assert_eq!(f1.uric_acid, Some(0.0));
