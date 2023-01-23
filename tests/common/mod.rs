@@ -1,6 +1,7 @@
 pub mod test_context;
 
 use anyhow::Result;
+use serde::Serialize;
 use std::time::Duration;
 
 use libgout::{
@@ -11,7 +12,9 @@ use rand::Rng;
 use uuid::Uuid;
 
 pub async fn create_test_context() -> Context {
-    let config = Config::default();
+    let mut rng = rand::thread_rng();
+    let mut config = Config::default();
+    config.addr.set_port(rng.gen_range(3001..4001));
 
     let context = Context::new(&config)
         .await
@@ -58,3 +61,16 @@ pub async fn get(url: String) -> Result<reqwest::Response> {
 
     Ok(client.get(url).send().await?)
 }
+
+pub async fn post<T: Serialize>(url: String, payload: T) -> Result<reqwest::Response> {
+    let client = create_http_client();
+
+    Ok(client.post(url).json(&payload).send().await?)
+}
+
+pub async fn delete(url: String) -> Result<reqwest::Response> {
+    let client = create_http_client();
+
+    Ok(client.delete(url).send().await?)
+}
+

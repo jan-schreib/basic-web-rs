@@ -41,7 +41,7 @@ impl Db for Sqlite {
         Ok(id)
     }
 
-    async fn get_foods(&self) -> Result<Vec<Food>, DbError> {
+    async fn list_food(&self) -> Result<Vec<Food>, DbError> {
         let mut conn = self.get_db().acquire().await?;
 
         let foods = sqlx::query_as::<_, Food>("select * from foods")

@@ -36,7 +36,7 @@ mod tests {
             db.add_food(&f.into()).await?;
         }
 
-        let foods = db.get_foods().await?;
+        let foods = db.list_food().await?;
         assert_eq!(10, foods.len());
 
         let f1 = foods.first().unwrap();
@@ -54,14 +54,17 @@ mod tests {
         let test_context = TestContext::new().await;
         let db = test_context.context.database();
 
+        // delete non existing Food
+        db.delete_food(1).await?;
+
         let food = generate_random_food();
         db.add_food(&food.into()).await?;
 
-        let foods = db.get_foods().await?;
+        let foods = db.list_food().await?;
         assert_eq!(1, foods.len());
 
         db.delete_food(foods.first().unwrap().id).await?;
-        let foods = db.get_foods().await?;
+        let foods = db.list_food().await?;
         assert_eq!(0, foods.len());
 
         Ok(())
@@ -75,7 +78,7 @@ mod tests {
         let food = generate_random_food();
         db.add_food(&food.into()).await?;
 
-        let mut foods = db.get_foods().await?;
+        let mut foods = db.list_food().await?;
         let f = foods.first_mut().unwrap();
         f.name = "updated_food".to_string();
 
