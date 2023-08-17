@@ -1,12 +1,13 @@
-use super::error::DbError;
-use crate::types::food::{Food, FoodInsert};
 use async_trait::async_trait;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Migration Error")]
+    Migration(#[from] sqlx::migrate::MigrateError),
+}
 
 #[async_trait]
 pub trait Db {
-    async fn add_food(&self, food: &FoodInsert) -> Result<i64, DbError>;
-    async fn get_food(&self, id: i64) -> Result<Food, DbError>;
-    async fn list_food(&self) -> Result<Vec<Food>, DbError>;
-    async fn update_food(&self, food: Food) -> Result<(), DbError>;
-    async fn delete_food(&self, id: i64) -> Result<(), DbError>;
+    async fn run_migrations(&self) -> Result<(), Error>;
 }

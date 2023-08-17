@@ -1,12 +1,9 @@
 use std::{net::SocketAddr, sync::Arc};
 
-use axum::{
-    routing::{get, post, delete},
-    Router,
-};
+use axum::Router;
 use thiserror::Error;
 
-use crate::{api::food, context::Context, db::interface::Db};
+use crate::{context::Context, db::interface::Db};
 
 #[derive(Error, Debug)]
 pub enum AppError {
@@ -43,11 +40,8 @@ impl WebApp {
     }
 
     fn api_router<S, T: Db + Send + Sync + Clone + 'static>(db: Arc<T>) -> Router<S> {
-        Router::new()
-            .route("/foods/:id", get(food::get_food))
-            .route("/foods", get(food::list_foods))
-            .route("/food", post(food::create_food))
-            .route("/foods/:id", delete(food::delete_food))
-            .with_state(db)
+        let api = Router::new();
+
+        Router::new().merge(api).with_state(db)
     }
 }

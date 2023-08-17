@@ -1,46 +1,45 @@
-#[cfg(test)]
-mod tests {
-    use anyhow::Result;
-    use libgout::types::food::{Food, FoodInsert};
+// #[cfg(test)]
+// mod tests {
+//     use anyhow::Result;
+//     use libgout::types::food::{Food, FoodInsert};
 
-    use crate::common::{get, test_context::TestContext, delete, generate_random_food, post};
+//     use crate::common::{delete, generate_random_food, get, post, test_context::TestContext};
 
-    #[tokio::test]
-    async fn test_crate_food() -> Result<()> {
-        let tc = TestContext::new().await;
-        tc.run();
+//     #[tokio::test]
+//     async fn test_crate_food() -> Result<()> {
+//         let tc = TestContext::new().await;
+//         tc.run();
 
-        let food: FoodInsert = generate_random_food().into();
+//         let food: FoodInsert = generate_random_food().into();
 
-        let res = post(tc.url() + "/api/food", &food).await?;
+//         let res = post(tc.url() + "/api/food", &food).await?;
 
-        assert_eq!(res.status(), 201);
+//         assert_eq!(res.status(), 201);
 
-        Ok(())
-    }
+//         Ok(())
+//     }
 
+//     #[tokio::test]
+//     async fn test_get_food() -> Result<()> {
+//         let tc = TestContext::new().await;
+//         tc.run();
 
-    #[tokio::test]
-    async fn test_get_food() -> Result<()> {
-        let tc = TestContext::new().await;
-        tc.run();
+//         let res = get(tc.url() + "/api/foods").await?;
+//         let foods = res.json::<Vec<Food>>().await.unwrap();
 
-        let res = get(tc.url() + "/api/foods").await?;
-        let foods = res.json::<Vec<Food>>().await.unwrap();
+//         assert_eq!(foods.len(), 0);
 
-        assert_eq!(foods.len(), 0);
+//         Ok(())
+//     }
 
-        Ok(())
-    }
+//     #[tokio::test]
+//     async fn test_delete_food() -> Result<()> {
+//         let tc = TestContext::new().await;
+//         tc.run();
 
-    #[tokio::test]
-    async fn test_delete_food() -> Result<()> {
-        let tc = TestContext::new().await;
-        tc.run();
+//         let res = delete(tc.url() + "/api/foods/1").await?;
+//         assert_eq!(res.status(), 204);
 
-        let res = delete(tc.url() + "/api/foods/1").await?;
-        assert_eq!(res.status(), 204);
-
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }

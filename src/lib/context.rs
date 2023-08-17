@@ -1,48 +1,25 @@
-use crate::db::{interface::Db, sqlite::Sqlite};
+use crate::db::Database;
+use crate::db::Error as DbError;
+use crate::db::sqlite::Sqlite;
 use crate::types::config::Config;
-use sqlx::{
-    sqlite::{SqliteConnectOptions, SqliteJournalMode},
-    SqlitePool,
-};
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Error in Sqlx")]
-    SqlxError(#[from] sqlx::Error),
+    #[error("Database error")]
+    Db(#[from] DbError),
     #[error("Migration error")]
     MigrationError(#[from] sqlx::migrate::MigrateError),
 }
 
+type ThisDB = Sqlite;
+
 #[derive(Clone, Debug)]
 pub struct Context {
     pub config: Config,
-    pub database: Database<Sqlite>,
+    pub database: Database<ThisDB>,
     pub cache: Arc<Cache>,
-}
-
-#[derive(Clone, Debug)]
-pub struct Database<T: Db> {
-    pub connection: Arc<T>,
-}
-
-impl Database<Sqlite> {
-    pub async fn new(url: &str) -> Result<Self, Error> {
-        let conn_opts = SqliteConnectOptions::from_str(url)?
-            .journal_mode(SqliteJournalMode::Wal)
-            .create_if_missing(true)
-            .read_only(false);
-
-        let conn = SqlitePool::connect_with(conn_opts).await?;
-
-        let sqlite = Sqlite::new(conn);
-        let database = Database {
-            connection: Arc::new(sqlite),
-        };
-
-        Ok(database)
-    }
 }
 
 #[derive(Clone, Debug)]
@@ -50,7 +27,8 @@ pub struct Cache {}
 
 impl Context {
     pub async fn new(config: &Config) -> Result<Self, Error> {
-        let database = Database::new(&config.db_url).await?;
+        let database = Database::<ThisDB>::new(&config.db_url).await?;
+
         let cache = Cache {};
         let config = config.clone();
 
@@ -61,15 +39,7 @@ impl Context {
         })
     }
 
-    pub async fn run_migrations(&self) -> Result<(), Error> {
-        sqlx::migrate!()
-            .run(&*self.database.connection.get_db())
-            .await?;
-
-        Ok(())
-    }
-
-    pub fn database(&self) -> Arc<Sqlite> {
+    pub fn database(&self) -> Arc<ThisDB> {
         self.database.connection.clone()
     }
 }

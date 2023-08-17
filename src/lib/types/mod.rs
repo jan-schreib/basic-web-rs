@@ -1,5 +1,4 @@
 pub mod config;
-pub mod food;
 
 #[macro_export]
 macro_rules! create_db_structs {

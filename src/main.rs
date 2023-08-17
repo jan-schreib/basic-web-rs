@@ -1,18 +1,16 @@
 use std::net::SocketAddr;
 
-use libgout::context::Context;
-use libgout::types::config::Config;
+use libbasicweb::types::config::Config;
+use libbasicweb::{context::Context, types::config::Oauth2};
 
 use thiserror::Error;
 
-use libgout::webapp::{self, WebApp};
+use libbasicweb::webapp::{self, WebApp};
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("DbError")]
-    DbError(#[from] libgout::db::error::DbError),
     #[error("ContextError")]
-    ContextError(#[from] libgout::context::Error),
+    ContextError(#[from] libbasicweb::context::Error),
     #[error("WebAppError")]
     WebAppError(#[from] webapp::AppError),
 }
@@ -25,10 +23,10 @@ pub async fn main() -> Result<(), Error> {
         db_url: "sqlite::memory:".to_string(),
         cache_url: String::new(),
         addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
+        oauth2: Oauth2::default(),
     };
 
     let context = Context::new(&config).await?;
-    context.run_migrations().await?;
 
     let app = WebApp::new(context);
     app.run().await?;

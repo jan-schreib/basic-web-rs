@@ -1,6 +1,6 @@
 use super::create_test_context;
-use libgout::context::Context;
-use libgout::webapp::WebApp;
+use libbasicweb::context::Context;
+use libbasicweb::webapp::WebApp;
 
 pub struct TestContext {
     pub context: Context,
