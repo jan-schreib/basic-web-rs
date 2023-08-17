@@ -1,8 +1,20 @@
 use std::net::SocketAddr;
 
 #[derive(Clone, Debug)]
-pub struct Config {
+pub enum DbType {
+    Sqlite,
+    Postgres,
+}
+
+#[derive(Clone, Debug)]
+pub struct DbConfig {
+    pub db_type: DbType,
     pub db_url: String,
+}
+
+#[derive(Clone, Debug)]
+pub struct Config {
+    pub db: DbConfig,
     pub cache_url: String,
     pub addr: SocketAddr,
     pub oauth2: Oauth2,
@@ -16,7 +28,10 @@ pub struct Oauth2 {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            db_url: "sqlite::memory:".to_string(),
+            db: DbConfig {
+                db_type: DbType::Sqlite,
+                db_url: "sqlite:memory:".to_string(),
+            },
             cache_url: Default::default(),
             addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
             oauth2: Oauth2 {

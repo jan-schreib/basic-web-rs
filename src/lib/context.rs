@@ -1,6 +1,6 @@
+use crate::db::sqlite::Sqlite;
 use crate::db::Database;
 use crate::db::Error as DbError;
-use crate::db::sqlite::Sqlite;
 use crate::types::config::Config;
 use std::sync::Arc;
 use thiserror::Error;
@@ -27,7 +27,7 @@ pub struct Cache {}
 
 impl Context {
     pub async fn new(config: &Config) -> Result<Self, Error> {
-        let database = Database::<ThisDB>::new(&config.db_url).await?;
+        let database = Database::<ThisDB>::new(&config.db.db_url).await?;
 
         let cache = Cache {};
         let config = config.clone();

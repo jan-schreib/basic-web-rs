@@ -1,7 +1,5 @@
-use std::net::SocketAddr;
-
+use libbasicweb::context::Context;
 use libbasicweb::types::config::Config;
-use libbasicweb::{context::Context, types::config::Oauth2};
 
 use thiserror::Error;
 
@@ -19,12 +17,7 @@ pub enum Error {
 pub async fn main() -> Result<(), Error> {
     env_logger::init();
 
-    let config = Config {
-        db_url: "sqlite::memory:".to_string(),
-        cache_url: String::new(),
-        addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
-        oauth2: Oauth2::default(),
-    };
+    let config = Config::default();
 
     let context = Context::new(&config).await?;
 

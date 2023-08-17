@@ -21,9 +21,7 @@ impl Sqlite {
 #[async_trait]
 impl Db for Sqlite {
     async fn run_migrations(&self) -> Result<(), Error> {
-        sqlx::migrate!()
-            .run(&*self.0)
-            .await?;
+        sqlx::migrate!().run(&*self.0).await?;
 
         Ok(())
     }

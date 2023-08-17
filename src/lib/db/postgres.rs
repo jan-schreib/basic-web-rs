@@ -20,9 +20,7 @@ impl Postgres {
 #[async_trait]
 impl Db for Postgres {
     async fn run_migrations(&self) -> Result<(), Error> {
-        sqlx::migrate!()
-            .run(&*self.0)
-            .await?;
+        sqlx::migrate!().run(&*self.0).await?;
 
         Ok(())
     }
