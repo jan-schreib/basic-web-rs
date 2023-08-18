@@ -13,7 +13,7 @@ pub struct DbConfig {
 }
 
 impl DbConfig {
-    pub fn default(db_type: DbType) -> Self {
+    pub fn default_for(db_type: DbType) -> Self {
          match db_type {
             DbType::Sqlite => Self {
                 db_type: DbType::Sqlite,
@@ -43,10 +43,7 @@ pub struct Oauth2 {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            db: DbConfig {
-                db_type: DbType::Sqlite,
-                db_url: "sqlite::memory:".to_string(),
-            },
+            db: DbConfig::default_for(DbType::Sqlite),
             cache_url: Default::default(),
             addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
             oauth2: Oauth2 {
