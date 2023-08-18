@@ -1,9 +1,11 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
-use axum::Router;
+use axum::{routing::get, Router};
 use thiserror::Error;
 
-use crate::{context::Context, db::interface::Db};
+use crate::api::Api;
+use crate::context::Context;
+use crate::frontend::index;
 
 #[derive(Error, Debug)]
 pub enum AppError {
@@ -21,8 +23,10 @@ impl WebApp {
     pub fn new(context: Context) -> Self {
         let config = context.config.clone();
 
-        let api_router = WebApp::api_router(context.database.connection.clone());
-        let router = Router::new().nest("/api", api_router);
+        let router = Router::new()
+            .nest("/api", Self::api_router())
+            .nest("/", Self::browser_router())
+            .with_state(context.clone());
 
         Self {
             context,
@@ -39,9 +43,11 @@ impl WebApp {
         Ok(())
     }
 
-    fn api_router<S, T: Db + Send + Sync + Clone + 'static>(db: Arc<T>) -> Router<S> {
-        let api = Router::new();
+    fn api_router() -> Router<Context> {
+        Router::new().route("/status", get(Api::status))
+    }
 
-        Router::new().merge(api).with_state(db)
+    fn browser_router() -> Router<Context> {
+        Router::new().route("/", get(index::index))
     }
 }

@@ -86,20 +86,3 @@ impl Oauth2 {
         })
     }
 }
-
-#[test]
-fn new_test() {
-    let config = Config::default();
-    let provider = Provider::Github;
-
-    let oa = Oauth2::new(
-        config,
-        provider,
-        "87bfe7ea9fdc84c721fc".to_string(),
-        "667f6549ff84d09fdf1052750c528a94c71efbde".to_string(),
-    );
-
-    println!("{:?}", oa);
-
-    assert!(1 == 1);
-}

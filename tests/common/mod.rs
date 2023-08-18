@@ -21,7 +21,7 @@ pub async fn create_test_context() -> Context {
 
 fn create_http_client() -> reqwest::Client {
     reqwest::Client::builder()
-        .user_agent("goutdb-test-client")
+        .user_agent("basicweb-test-client")
         .timeout(Duration::from_millis(1_000))
         .build()
         .unwrap()

@@ -55,8 +55,6 @@ impl Database<Postgres> {
     pub async fn new(url: &str) -> Result<Self, Error> {
         let pool = PgPoolOptions::new().max_connections(5).connect(url).await?;
 
-        //let conn = SqlitePool::connect_with(conn_opts).await?;
-
         let pg = Postgres::new(pool).await;
         let database = Database {
             connection: Arc::new(pg),

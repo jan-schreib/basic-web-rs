@@ -12,6 +12,21 @@ pub struct DbConfig {
     pub db_url: String,
 }
 
+impl DbConfig {
+    pub fn default(db_type: DbType) -> Self {
+         match db_type {
+            DbType::Sqlite => Self {
+                db_type: DbType::Sqlite,
+                db_url: "sqlite::memory:".to_string(),
+            },
+            DbType::Postgres => Self {
+                db_type: DbType::Postgres,
+                db_url: "postgres://postgres:postgres@localhost/postgres".to_string()
+            }
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Config {
     pub db: DbConfig,
@@ -30,7 +45,7 @@ impl Default for Config {
         Self {
             db: DbConfig {
                 db_type: DbType::Sqlite,
-                db_url: "sqlite:memory:".to_string(),
+                db_url: "sqlite::memory:".to_string(),
             },
             cache_url: Default::default(),
             addr: SocketAddr::from(([127, 0, 0, 1], 3000)),
