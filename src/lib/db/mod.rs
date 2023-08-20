@@ -45,7 +45,7 @@ impl Database<Sqlite> {
             connection: Arc::new(sqlite),
         };
 
-        database.connection.clone().run_migrations().await?;
+        //database.connection.clone().run_migrations().await?;
 
         Ok(database)
     }

@@ -14,15 +14,15 @@ pub struct DbConfig {
 
 impl DbConfig {
     pub fn default_for(db_type: DbType) -> Self {
-         match db_type {
+        match db_type {
             DbType::Sqlite => Self {
                 db_type: DbType::Sqlite,
                 db_url: "sqlite::memory:".to_string(),
             },
             DbType::Postgres => Self {
                 db_type: DbType::Postgres,
-                db_url: "postgres://postgres:postgres@localhost/postgres".to_string()
-            }
+                db_url: "postgres://postgres:postgres@localhost/postgres".to_string(),
+            },
         }
     }
 }

@@ -1,6 +1,4 @@
-use crate::db::sqlite::Sqlite;
-use crate::db::Database;
-use crate::db::Error as DbError;
+use crate::db::{sqlite::Sqlite, Database, Error as DbError};
 use crate::types::config::Config;
 use std::sync::Arc;
 use thiserror::Error;
